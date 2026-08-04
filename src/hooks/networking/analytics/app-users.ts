@@ -1,6 +1,8 @@
 import { API_CONFIG } from "@/constants/api-config";
-import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
+import { getJson } from "@/lib/api-client";
+import { STALE_TIME } from "@/lib/query-client";
+import { queryKeys } from "@/lib/query-keys";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
 type AppUser = {
   batch: number;
@@ -21,35 +23,20 @@ type AppUsersResponse = {
   search?: string;
 };
 
-const fetchAppUsers = async (
-  page: number = 1,
-  limit: number = 25,
-  search: string = ""
-): Promise<AppUsersResponse | null> => {
-  try {
-    const response = await axios.get(API_CONFIG.APP_USERS, {
-      params: {
-        page,
-        limit,
-        search,
-      },
-    });
-    return response?.data ?? null;
-  } catch (error) {
-    console.error("Error fetching app users:", error);
-    throw error instanceof AxiosError
-      ? error
-      : new Error("An unexpected error occurred");
-  }
-};
-
 export const useGetAppUsers = (
   page: number = 1,
   limit: number = 25,
   search: string = ""
 ) => {
   return useQuery<AppUsersResponse | null, Error>({
-    queryKey: ["app-users", page, limit, search],
-    queryFn: () => fetchAppUsers(page, limit, search),
+    queryKey: queryKeys.appUsers.page({ page, limit, search }),
+    queryFn: () =>
+      getJson<AppUsersResponse>(API_CONFIG.APP_USERS, {
+        params: { page, limit, search },
+      }),
+    staleTime: STALE_TIME.standard,
+    // Hold the previous page on screen while the next one loads, so paging and
+    // typing in the search box no longer collapse the table into a skeleton.
+    placeholderData: keepPreviousData,
   });
 };

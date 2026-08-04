@@ -12,14 +12,23 @@ import { AlertCircle, RefreshCcw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Title } from "../atoms/typography/title";
 import { AppUsersCard } from "../molecules/dashboard/AppUsersCard";
-import { DistributionChart } from "../molecules/dashboard/DistributionChart";
+import {
+  DistributionChart,
+  type DistributionSlice,
+} from "../molecules/dashboard/DistributionChart";
 import { GameScoresCard } from "../molecules/dashboard/GameScoresCard";
 import { PeakActivityCard } from "../molecules/dashboard/PeakActivityCard";
 import { PlatformPeaksCard } from "../molecules/dashboard/PlatformPeaksCard";
 import { PlatformStatusCard } from "../molecules/dashboard/PlatformStatusCard";
 import { PlatformUsageCard } from "../molecules/dashboard/PlatformUsageCard";
-import { TimelineChart } from "../molecules/dashboard/TimelineChart";
-import { TodayChart } from "../molecules/dashboard/TodayChart";
+import {
+  TimelineChart,
+  type TimelinePoint,
+} from "../molecules/dashboard/TimelineChart";
+import {
+  TodayChart,
+  type DayBreakdown,
+} from "../molecules/dashboard/TodayChart";
 import { TopContentCards } from "../molecules/dashboard/TopContentCards";
 
 function ChartsSkeleton() {
@@ -87,21 +96,22 @@ export default function Dashboard() {
 
   const chartData = useMemo(() => data?.data ?? [], [data?.data]);
 
-  const pieChartData = useMemo(
-    () => [
-      {
-        name: "App",
-        value: Number(dailySummary?.kpi.appPlatformPercentage ?? 0),
-      },
-      {
-        name: "Bot",
-        value: Number(dailySummary?.kpi.botPlatformPercentage ?? 0),
-      },
-    ],
+  // Sector names must match the keys in PLATFORM_CHART_CONFIG so each slice
+  // resolves its own gradient and legend label.
+  const pieChartData = useMemo<DistributionSlice[]>(
+    () =>
+      [
+        {
+          platform: "app",
+          share: Number(dailySummary?.kpi.appPlatformPercentage ?? 0),
+        },
+        {
+          platform: "bot",
+          share: Number(dailySummary?.kpi.botPlatformPercentage ?? 0),
+        },
+      ].filter(slice => slice.share > 0),
     [dailySummary?.kpi]
   );
-
-  const COLORS = ["#3b82f6", "#10b981"];
 
   const formatDate = (date: string) => {
     return dayjs(date).format("D MMMM, YYYY");
@@ -114,30 +124,44 @@ export default function Dashboard() {
   const [timeRange, setTimeRange] = useState("7days");
   const [selectedDay, setSelectedDay] = useState("today");
 
-  const selectedDayData = useMemo(() => {
+  const selectedDayData = useMemo<DayBreakdown[]>(() => {
     const today = dayjs().startOf("day");
     const targetDate =
       selectedDay === "today" ? today : today.subtract(1, "day");
 
-    return chartData.filter(item =>
-      dayjs(item.date).startOf("day").isSame(targetDate)
-    );
+    // Collapse to one entry per platform so a day split across several rows
+    // still renders as a single sector each.
+    const totals = new Map<string, number>();
+    for (const item of chartData) {
+      if (!dayjs(item.date).startOf("day").isSame(targetDate)) continue;
+      totals.set(item.platform, (totals.get(item.platform) ?? 0) + item.count);
+    }
+
+    return [...totals.entries()].map(([platform, count]) => ({
+      platform,
+      count,
+    }));
   }, [chartData, selectedDay]);
 
-  const filteredChartData = useMemo(() => {
-    const now = dayjs();
-    return chartData
-      .filter(item => {
-        switch (timeRange) {
-          case "7days":
-            return dayjs(item.date).isAfter(now.subtract(7, "days"));
-          case "30days":
-            return dayjs(item.date).isAfter(now.subtract(30, "days"));
-          default:
-            return true;
-        }
-      })
-      .sort((a, b) => dayjs(a.date).diff(dayjs(b.date)));
+  // The API returns one row per (date, platform); the chart wants one row per
+  // date with a column per platform, so pivot before handing it over.
+  const filteredChartData = useMemo<TimelinePoint[]>(() => {
+    const cutoff = dayjs().subtract(timeRange === "30days" ? 30 : 7, "days");
+    const byDate = new Map<string, TimelinePoint>();
+
+    for (const item of chartData) {
+      if (!dayjs(item.date).isAfter(cutoff)) continue;
+
+      const date = dayjs(item.date).format("YYYY-MM-DD");
+      const row = byDate.get(date) ?? { date, app: 0, bot: 0 };
+
+      if (item.platform === "app") row.app += item.count;
+      else if (item.platform === "bot") row.bot += item.count;
+
+      byDate.set(date, row);
+    }
+
+    return [...byDate.values()].sort((a, b) => a.date.localeCompare(b.date));
   }, [chartData, timeRange]);
 
   if (error)
@@ -156,13 +180,20 @@ export default function Dashboard() {
           variant="outline"
           size="sm"
           onClick={() => refetchDailySummary()}
-          className="z-10 gap-2 text-white right-2 top-2"
+          aria-label="Refresh dashboard summary"
+          className="z-10 gap-2 right-2 top-2"
         >
-          <RefreshCcw className="w-4 h-4" />
+          <RefreshCcw
+            className={`w-4 h-4 ${
+              isRefetchingDailySummary ? "animate-spin" : ""
+            }`}
+          />
         </Button>
       </Box>
 
-      {isLoadingDailySummary || isRefetchingDailySummary || isLoadingStatus ? (
+      {/* Only the very first load falls back to skeletons — a refetch keeps the
+          cached numbers on screen and shows progress in the refresh button. */}
+      {isLoadingDailySummary || isLoadingStatus ? (
         <SummaryCardsSkeleton />
       ) : (
         <Box className="grid grid-cols-1 gap-2 sm:gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -190,7 +221,9 @@ export default function Dashboard() {
         </Box>
       )}
 
-      {isLoadingDailyReport || isRefetchingDailyReport ? (
+      {/* Same here: refetching keeps the current chart rendered rather than
+          tearing it down and replaying the reveal animation. */}
+      {isLoadingDailyReport ? (
         <ChartsSkeleton />
       ) : (
         <Tabs defaultValue="timeline" className="w-full">
@@ -207,12 +240,14 @@ export default function Dashboard() {
                 timeRange={timeRange}
                 setTimeRange={setTimeRange}
                 refetchDailyReport={refetchDailyReport}
+                isRefetching={isRefetchingDailyReport}
               />
               <TodayChart
                 selectedDayData={selectedDayData}
                 selectedDay={selectedDay}
                 setSelectedDay={setSelectedDay}
                 refetchDailyReport={refetchDailyReport}
+                isRefetching={isRefetchingDailyReport}
               />
             </Box>
           </TabsContent>
@@ -227,7 +262,10 @@ export default function Dashboard() {
           </TabsContent> */}
 
           <TabsContent value="distribution">
-            <DistributionChart pieChartData={pieChartData} COLORS={COLORS} />
+            <DistributionChart
+              pieChartData={pieChartData}
+              isLoading={isLoadingDailySummary}
+            />
           </TabsContent>
         </Tabs>
       )}

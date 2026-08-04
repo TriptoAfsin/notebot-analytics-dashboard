@@ -43,6 +43,13 @@
     --chart-4: 43 74% 66%;
 
     --chart-5: 27 87% 67%;
+
+    /* Axis ticks and bar value labels for the platform charts. These are small
+       text, so they need the dark end of each series gradient on a light
+       background and the light end on a dark one — a single series colour can't
+       stay legible in both. */
+    --chart-label-app: #1d4ed8;
+    --chart-label-bot: #047857;
   }
 
   .dark {
@@ -78,6 +85,9 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    --chart-label-app: #93c5fd;
+    --chart-label-bot: #6ee7b7;
   }
 }
 

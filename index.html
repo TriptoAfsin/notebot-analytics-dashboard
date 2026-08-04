@@ -2,9 +2,27 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/notebot-web.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>NoteBot Analytics</title>
+
+    <!-- Favicon: .ico for the tab, PNGs for high-DPI and Android -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/pwa-64x64.png" sizes="64x64" />
+    <link rel="icon" type="image/png" href="/pwa-192x192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <link rel="mask-icon" href="/maskable-icon-512x512.png" color="#3b82f6" />
+
+    <!-- Match the browser chrome to the active theme -->
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#ffffff"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#0a0a0a"
+    />
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="NoteBOT Web" />
@@ -29,7 +47,6 @@
       property="twitter:image"
       content="https://i.postimg.cc/Pfw5D2tf/meta-og-thumbnails.png"
     />
-    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
   </head>
   <body>
     <div id="root"></div>

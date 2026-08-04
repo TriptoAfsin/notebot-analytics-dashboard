@@ -6,16 +6,14 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "react-hot-toast";
 
 // Lazy load the QBankPage
 const UsersPage = lazy(() => import("@/pages/users"));
 const MissedWordsPage = lazy(() => import("@/pages/missed-words"));
 const GameScorePage = lazy(() => import("@/pages/game-score"));
-
-// Create a client
-const queryClient = new QueryClient();
 
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";

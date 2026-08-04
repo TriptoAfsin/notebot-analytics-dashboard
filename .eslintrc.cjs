@@ -6,7 +6,10 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:react-hooks/recommended',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  // src/components/evilcharts is vendored in from the Evil Charts registry via
+  // `shadcn add` — it is third-party code we re-pull rather than hand-maintain,
+  // so it is excluded from our lint rules.
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'src/components/evilcharts'],
   parser: '@typescript-eslint/parser',
   plugins: ['react-refresh'],
   rules: {

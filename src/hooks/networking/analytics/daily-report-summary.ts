@@ -1,6 +1,8 @@
 import { API_CONFIG } from "@/constants/api-config";
+import { getJson } from "@/lib/api-client";
+import { STALE_TIME } from "@/lib/query-client";
+import { queryKeys } from "@/lib/query-keys";
 import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
 
 type DailySummaryResponse = {
   kpi: {
@@ -19,21 +21,11 @@ type DailySummaryResponse = {
   status: string;
 };
 
-const fetchDailySummary = async (): Promise<DailySummaryResponse | null> => {
-  try {
-    const response = await axios.get(API_CONFIG.DAILY_REPORT_SUMMARY);
-    return response?.data ?? null;
-  } catch (error) {
-    console.error("Error fetching daily summary:", error);
-    throw error instanceof AxiosError
-      ? error
-      : new Error("An unexpected error occurred");
-  }
-};
-
 export const useGetDailySummary = () => {
   return useQuery<DailySummaryResponse | null, Error>({
-    queryKey: ["daily-summary"],
-    queryFn: () => fetchDailySummary(),
+    queryKey: queryKeys.dailySummary,
+    queryFn: () =>
+      getJson<DailySummaryResponse>(API_CONFIG.DAILY_REPORT_SUMMARY),
+    staleTime: STALE_TIME.live,
   });
 };

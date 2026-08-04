@@ -1,6 +1,8 @@
 import { API_CONFIG } from "@/constants/api-config";
+import { getJson } from "@/lib/api-client";
+import { STALE_TIME } from "@/lib/query-client";
+import { queryKeys } from "@/lib/query-keys";
 import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
 
 type DailyReportItem = {
   count: number;
@@ -20,21 +22,10 @@ type DailyReportResponse = {
   status: string;
 };
 
-const fetchDailyReport = async (): Promise<DailyReportResponse | null> => {
-  try {
-    const response = await axios.get(API_CONFIG.DAILY_REPORT);
-    return response?.data ?? null;
-  } catch (error) {
-    console.error("Error fetching daily report:", error);
-    throw error instanceof AxiosError
-      ? error
-      : new Error("An unexpected error occurred");
-  }
-};
-
 export const useGetDailyReport = () => {
   return useQuery<DailyReportResponse | null, Error>({
-    queryKey: ["daily-report"],
-    queryFn: () => fetchDailyReport(),
+    queryKey: queryKeys.dailyReport,
+    queryFn: () => getJson<DailyReportResponse>(API_CONFIG.DAILY_REPORT),
+    staleTime: STALE_TIME.live,
   });
 };

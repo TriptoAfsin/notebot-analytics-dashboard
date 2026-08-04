@@ -1,6 +1,8 @@
 import { API_CONFIG } from "@/constants/api-config";
+import { getJson } from "@/lib/api-client";
+import { STALE_TIME } from "@/lib/query-client";
+import { queryKeys } from "@/lib/query-keys";
 import { useQuery } from "@tanstack/react-query";
-import axios, { AxiosError } from "axios";
 
 type TopNoteSubject = {
   count: number;
@@ -24,40 +26,18 @@ type TopLabsResponse = {
   topLabSubjects: TopLabSubject[];
 };
 
-const fetchTopNotes = async (): Promise<TopNotesResponse | null> => {
-  try {
-    const response = await axios.get(API_CONFIG.TOP_NOTES);
-    return response?.data ?? null;
-  } catch (error) {
-    console.error("Error fetching top notes:", error);
-    throw error instanceof AxiosError
-      ? error
-      : new Error("An unexpected error occurred");
-  }
-};
-
-const fetchTopLabs = async (): Promise<TopLabsResponse | null> => {
-  try {
-    const response = await axios.get(API_CONFIG.TOP_LABS);
-    return response?.data ?? null;
-  } catch (error) {
-    console.error("Error fetching top labs:", error);
-    throw error instanceof AxiosError
-      ? error
-      : new Error("An unexpected error occurred");
-  }
-};
-
 export const useGetTopNotes = () => {
   return useQuery<TopNotesResponse | null, Error>({
-    queryKey: ["top-notes"],
-    queryFn: () => fetchTopNotes(),
+    queryKey: queryKeys.topNotes,
+    queryFn: () => getJson<TopNotesResponse>(API_CONFIG.TOP_NOTES),
+    staleTime: STALE_TIME.standard,
   });
 };
 
 export const useGetTopLabs = () => {
   return useQuery<TopLabsResponse | null, Error>({
-    queryKey: ["top-labs"],
-    queryFn: () => fetchTopLabs(),
+    queryKey: queryKeys.topLabs,
+    queryFn: () => getJson<TopLabsResponse>(API_CONFIG.TOP_LABS),
+    staleTime: STALE_TIME.standard,
   });
 };
