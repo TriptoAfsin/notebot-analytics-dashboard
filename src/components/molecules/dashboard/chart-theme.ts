@@ -4,7 +4,7 @@ import type { ChartConfig } from "@/components/evilcharts/ui/recharts-chart";
  * Shared series styling for every platform chart on the dashboard.
  *
  * Keys must match the platform values coming back from the analytics API
- * ("app" / "bot") because Evil Charts resolves each series' gradient and legend
+ * ("app" / "bot" / "ai") because Evil Charts resolves each series' gradient and legend
  * label from the config key. Each `colors` array is rendered as top-to-bottom
  * gradient stops, and the light/dark entries are emitted as scoped CSS
  * variables so the charts follow the app's theme toggle.
@@ -22,6 +22,14 @@ export const PLATFORM_CHART_CONFIG = {
     colors: {
       light: ["#34d399", "#047857"],
       dark: ["#6ee7b7", "#059669"],
+    },
+  },
+  // MCP servers (Claude, ChatGPT, …) reading NoteBot content
+  ai: {
+    label: "AI",
+    colors: {
+      light: ["#fbbf24", "#b45309"],
+      dark: ["#fcd34d", "#d97706"],
     },
   },
 } satisfies ChartConfig;

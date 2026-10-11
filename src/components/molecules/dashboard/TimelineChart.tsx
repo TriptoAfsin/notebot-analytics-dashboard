@@ -18,6 +18,7 @@ export type TimelinePoint = {
   date: string;
   app: number;
   bot: number;
+  ai: number;
 };
 
 interface TimelineChartProps {
@@ -40,6 +41,7 @@ const valueLabel = (colorVar: string) =>
 
 const appValueLabel = valueLabel("var(--chart-label-app)");
 const botValueLabel = valueLabel("var(--chart-label-bot)");
+const aiValueLabel = valueLabel("var(--chart-label-ai)");
 
 export function TimelineChart({
   filteredChartData,
@@ -59,7 +61,7 @@ export function TimelineChart({
           <Box className="flex flex-col gap-0.5">
             <span className="text-base font-semibold">Interactions</span>
             <span className="text-xs font-normal text-muted-foreground">
-              App vs Bot, daily · independent scales
+              App (left axis) vs Bot & AI (right axis), daily
             </span>
           </Box>
 
@@ -146,6 +148,16 @@ export function TimelineChart({
             barProps={{
               yAxisId: "bot",
               label: showValueLabels ? botValueLabel : undefined,
+            }}
+          />
+          {/* AI (MCP) traffic sits on the same small-scale axis as Bot. */}
+          <EvilBarChart.Bar
+            dataKey="ai"
+            variant="gradient"
+            glowing
+            barProps={{
+              yAxisId: "bot",
+              label: showValueLabels ? aiValueLabel : undefined,
             }}
           />
         </EvilBarChart>

@@ -109,6 +109,10 @@ export default function Dashboard() {
           platform: "bot",
           share: Number(dailySummary?.kpi.botPlatformPercentage ?? 0),
         },
+        {
+          platform: "ai",
+          share: Number(dailySummary?.kpi.aiPlatformPercentage ?? 0),
+        },
       ].filter(slice => slice.share > 0),
     [dailySummary?.kpi]
   );
@@ -153,10 +157,11 @@ export default function Dashboard() {
       if (!dayjs(item.date).isAfter(cutoff)) continue;
 
       const date = dayjs(item.date).format("YYYY-MM-DD");
-      const row = byDate.get(date) ?? { date, app: 0, bot: 0 };
+      const row = byDate.get(date) ?? { date, app: 0, bot: 0, ai: 0 };
 
       if (item.platform === "app") row.app += item.count;
       else if (item.platform === "bot") row.bot += item.count;
+      else if (item.platform === "ai") row.ai += item.count;
 
       byDate.set(date, row);
     }
@@ -210,12 +215,14 @@ export default function Dashboard() {
           <PlatformPeaksCard
             highestAppCount={dailySummary?.kpi.highestAppPlatformCount ?? 0}
             highestBotCount={dailySummary?.kpi.highestBotPlatformCount ?? 0}
+            highestAiCount={dailySummary?.kpi.highestAiPlatformCount ?? 0}
             formatNumber={formatNumber}
           />
 
           <PlatformUsageCard
             totalAppCount={dailySummary?.kpi.totalAppPlatformCount ?? 0}
             totalBotCount={dailySummary?.kpi.totalBotPlatformCount ?? 0}
+            totalAiCount={dailySummary?.kpi.totalAiPlatformCount ?? 0}
             formatNumber={formatNumber}
           />
         </Box>

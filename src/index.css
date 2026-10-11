@@ -50,6 +50,7 @@
        stay legible in both. */
     --chart-label-app: #1d4ed8;
     --chart-label-bot: #047857;
+    --chart-label-ai: #b45309;
   }
 
   .dark {
@@ -88,6 +89,7 @@
 
     --chart-label-app: #93c5fd;
     --chart-label-bot: #6ee7b7;
+    --chart-label-ai: #fcd34d;
   }
 }
 

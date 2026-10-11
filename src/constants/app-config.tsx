@@ -14,7 +14,6 @@ export const APP_CONFIG = {
     github: "https://github.com/TriptoAfsin",
     web: "https://www.triptex.me/",
   },
-  secretPass: import.meta.env.VITE_SECRET_PASS,
 };
 
 export const APP_HEADER_MENU = [

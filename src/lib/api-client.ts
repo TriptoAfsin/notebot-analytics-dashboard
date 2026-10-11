@@ -1,3 +1,5 @@
+import { APP_CONFIG } from "@/constants/app-config";
+import { getCookie, removeCookie } from "@/utils/cookie-utils";
 import axios, { AxiosError, type AxiosRequestConfig } from "axios";
 
 /**
@@ -7,6 +9,22 @@ import axios, { AxiosError, type AxiosRequestConfig } from "axios";
  */
 export const apiClient = axios.create({
   timeout: 20_000,
+});
+
+// Every request carries the stored admin key; the API decides what it unlocks
+// (users list, player emails). A 401 means the key is wrong or rotated.
+apiClient.interceptors.request.use(config => {
+  const key = getCookie(APP_CONFIG.secretPassCookie);
+  if (key && !config.headers.has("X-Admin-Key")) config.headers.set("X-Admin-Key", key);
+  return config;
+});
+
+apiClient.interceptors.response.use(undefined, error => {
+  if (error instanceof AxiosError && error.response?.status === 401 && window.location.pathname !== "/secret-pass") {
+    removeCookie(APP_CONFIG.secretPassCookie);
+    window.location.assign("/secret-pass");
+  }
+  return Promise.reject(error);
 });
 
 /**

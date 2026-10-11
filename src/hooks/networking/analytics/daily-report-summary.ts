@@ -17,6 +17,10 @@ type DailySummaryResponse = {
     lowestPlatform: string;
     totalAppPlatformCount: number;
     totalBotPlatformCount: number;
+    // optional so the dashboard still renders against an API without the ai source
+    aiPlatformPercentage?: number;
+    highestAiPlatformCount?: number;
+    totalAiPlatformCount?: number;
   };
   status: string;
 };
