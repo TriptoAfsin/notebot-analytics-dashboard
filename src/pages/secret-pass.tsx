@@ -35,7 +35,11 @@ export default function SecretPassPage() {
       setCookie(APP_CONFIG.secretPassCookie, password.trim());
       navigate("/");
     } catch (error) {
-      toast.error(statusOf(error) === 401 ? "Invalid admin key" : "Couldn't reach the analytics API");
+      toast.error(
+        statusOf(error) === 401
+          ? "Wrong key. Use the analytics API's ADMIN_KEY, not the old dashboard password."
+          : "Couldn't reach the analytics API"
+      );
     } finally {
       setChecking(false);
     }
@@ -49,7 +53,7 @@ export default function SecretPassPage() {
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          placeholder="Analytics admin key"
+          placeholder="Analytics API ADMIN_KEY"
           autoComplete="current-password"
         />
         <Button type="submit" className="w-full" disabled={checking}>

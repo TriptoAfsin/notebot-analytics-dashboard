@@ -35,4 +35,5 @@ export const API_CONFIG = {
   GAME_SCORES: `${BASE_URL}/games/notebird`,
   APP_USERS: `${BASE_URL}/users/app`,
   MISSED_WORDS: `${BASE_URL}/missed`,
+  MCP_SUMMARY: `${BASE_URL}/mcp/summary`,
 };

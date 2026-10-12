@@ -17,6 +17,7 @@ import {
   type DistributionSlice,
 } from "../molecules/dashboard/DistributionChart";
 import { GameScoresCard } from "../molecules/dashboard/GameScoresCard";
+import { McpCard } from "../molecules/dashboard/McpCard";
 import { PeakActivityCard } from "../molecules/dashboard/PeakActivityCard";
 import { PlatformPeaksCard } from "../molecules/dashboard/PlatformPeaksCard";
 import { PlatformStatusCard } from "../molecules/dashboard/PlatformStatusCard";
@@ -276,6 +277,8 @@ export default function Dashboard() {
           </TabsContent>
         </Tabs>
       )}
+
+      <McpCard />
 
       <AppUsersCard />
 

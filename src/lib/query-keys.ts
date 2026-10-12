@@ -22,6 +22,8 @@ export const queryKeys = {
   topNotes: ["top-notes"] as const,
   topLabs: ["top-labs"] as const,
 
+  mcpSummary: (days: number) => ["mcp-summary", days] as const,
+
   appUsers: {
     all: ["app-users"] as const,
     page: (params: PaginatedParams) => ["app-users", params] as const,
