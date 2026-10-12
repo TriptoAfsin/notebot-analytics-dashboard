@@ -11,7 +11,7 @@ import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 /**
- * The password is the analytics API's admin key, and the API checks it.
+ * The API checks the password: its DASHBOARD_PASS or ADMIN_KEY env var.
  *
  * This used to compare against VITE_SECRET_PASS in the browser, but Vite
  * inlines VITE_* values into the public bundle, so the "password" was readable
@@ -37,7 +37,7 @@ export default function SecretPassPage() {
     } catch (error) {
       toast.error(
         statusOf(error) === 401
-          ? "Wrong key. Use the analytics API's ADMIN_KEY, not the old dashboard password."
+          ? "Wrong password (or too many tries: wait 15 minutes)"
           : "Couldn't reach the analytics API"
       );
     } finally {
@@ -53,7 +53,7 @@ export default function SecretPassPage() {
           type="password"
           value={password}
           onChange={e => setPassword(e.target.value)}
-          placeholder="Analytics API ADMIN_KEY"
+          placeholder="Dashboard password"
           autoComplete="current-password"
         />
         <Button type="submit" className="w-full" disabled={checking}>
