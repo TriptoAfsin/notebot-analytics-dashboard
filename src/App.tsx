@@ -14,6 +14,7 @@ import { Toaster } from "react-hot-toast";
 const UsersPage = lazy(() => import("@/pages/users"));
 const MissedWordsPage = lazy(() => import("@/pages/missed-words"));
 const GameScorePage = lazy(() => import("@/pages/game-score"));
+const AiUsagePage = lazy(() => import("@/pages/ai-usage"));
 
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -36,6 +37,14 @@ function App() {
                   element={
                     <Suspense fallback={<TableSkeleton />}>
                       <UsersPage />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/ai-usage"
+                  element={
+                    <Suspense fallback={<TableSkeleton />}>
+                      <AiUsagePage />
                     </Suspense>
                   }
                 />

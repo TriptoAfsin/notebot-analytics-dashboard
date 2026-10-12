@@ -99,24 +99,20 @@ export default function Dashboard() {
 
   // Sector names must match the keys in PLATFORM_CHART_CONFIG so each slice
   // resolves its own gradient and legend label.
-  const pieChartData = useMemo<DistributionSlice[]>(
-    () =>
-      [
-        {
-          platform: "app",
-          share: Number(dailySummary?.kpi.appPlatformPercentage ?? 0),
-        },
-        {
-          platform: "bot",
-          share: Number(dailySummary?.kpi.botPlatformPercentage ?? 0),
-        },
-        {
-          platform: "ai",
-          share: Number(dailySummary?.kpi.aiPlatformPercentage ?? 0),
-        },
-      ].filter(slice => slice.share > 0),
-    [dailySummary?.kpi]
-  );
+  // Shares come from the raw totals: the API truncates its percentages to two
+  // decimals, which turns AI's small share into 0 and drops the slice.
+  const pieChartData = useMemo<DistributionSlice[]>(() => {
+    const totals = {
+      app: Number(dailySummary?.kpi.totalAppPlatformCount ?? 0),
+      bot: Number(dailySummary?.kpi.totalBotPlatformCount ?? 0),
+      ai: Number(dailySummary?.kpi.totalAiPlatformCount ?? 0),
+    };
+    const sum = totals.app + totals.bot + totals.ai;
+    if (sum === 0) return [];
+    return Object.entries(totals)
+      .map(([platform, count]) => ({ platform, share: (count / sum) * 100 }))
+      .filter(slice => slice.share > 0);
+  }, [dailySummary?.kpi]);
 
   const formatDate = (date: string) => {
     return dayjs(date).format("D MMMM, YYYY");

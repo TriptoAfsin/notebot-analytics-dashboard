@@ -1,4 +1,4 @@
-import { House, Puzzle, Trophy, Users } from "lucide-react";
+import { House, Puzzle, Sparkles, Trophy, Users } from "lucide-react";
 
 export const APP_CONFIG = {
   secretPassCookie: "secret_pass",
@@ -28,6 +28,12 @@ export const APP_HEADER_MENU = [
     icon: <Users size={20} strokeWidth={1.5} />,
     label: "Users",
     href: "/users",
+  },
+  {
+    id: 3131,
+    icon: <Sparkles size={20} strokeWidth={1.5} />,
+    label: "AI Usage",
+    href: "/ai-usage",
   },
   {
     id: 2121,

@@ -5,7 +5,7 @@ import { PLATFORM_CHART_CONFIG } from "./chart-theme";
 
 /**
  * A sector of the distribution donut. `platform` must be one of the keys in
- * PLATFORM_CHART_CONFIG ("app" / "bot") — Evil Charts looks the sector's
+ * PLATFORM_CHART_CONFIG ("app" / "bot" / "ai") — Evil Charts looks the sector's
  * gradient and label up by that name.
  */
 export type DistributionSlice = {
@@ -60,11 +60,17 @@ export function DistributionChart({
               cornerRadius={8}
               paddingAngle={3}
               glowingSectors={pieChartData.map(slice => slice.platform)}
+              // AI is a fraction of a percent next to App; give every sector a
+              // visible sliver while the label and tooltip keep the true share.
+              pieProps={{ minAngle: 6 }}
             >
               <EvilPieChart.Label
                 labelListProps={{
                   className: "fill-background text-xs font-semibold",
-                  formatter: value => `${Number(value).toFixed(1)}%`,
+                  formatter: value => {
+                    const share = Number(value);
+                    return share < 1 ? `${share.toFixed(2)}%` : `${share.toFixed(1)}%`;
+                  },
                 }}
               />
             </EvilPieChart.Pie>

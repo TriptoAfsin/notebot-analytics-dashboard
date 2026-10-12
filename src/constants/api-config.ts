@@ -36,4 +36,6 @@ export const API_CONFIG = {
   APP_USERS: `${BASE_URL}/users/app`,
   MISSED_WORDS: `${BASE_URL}/missed`,
   MCP_SUMMARY: `${BASE_URL}/mcp/summary`,
+  MCP_EMAILS: `${BASE_URL}/mcp/emails`,
+  MCP_KEYS: `${BASE_URL}/mcp/keys`,
 };

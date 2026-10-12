@@ -14,7 +14,8 @@ import {
 } from "@/components/ui/table";
 import { useGetMcpSummary } from "@/hooks/networking/analytics/mcp-summary";
 import dayjs from "dayjs";
-import { Activity, ExternalLink, KeyRound, Mail, RefreshCcw, Sparkles } from "lucide-react";
+import { Activity, ExternalLink, Eye, KeyRound, Mail, RefreshCcw, Sparkles } from "lucide-react";
+import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 import { formatCompactNumber, formatFullNumber } from "./chart-theme";
 
@@ -77,7 +78,7 @@ function Stat({
  * NoteBot MCP (ai.butexnotebot.com): how many people registered an email, how
  * many keys are out, and how much traffic the AI apps send.
  */
-export function McpCard() {
+export function McpCard({ showPageLink = true }: { showPageLink?: boolean }) {
   const { data, isLoading, error, refetch, isRefetching } = useGetMcpSummary(30);
 
   if (isLoading) {
@@ -138,6 +139,13 @@ export function McpCard() {
                 className={`w-4 h-4 ${isRefetching ? "animate-spin" : ""}`}
               />
             </Button>
+            {showPageLink && (
+              <Button asChild variant="outline" size="sm">
+                <Link to="/ai-usage" aria-label="All emails and keys">
+                  <Eye className="w-4 h-4" />
+                </Link>
+              </Button>
+            )}
             <Button asChild variant="default" size="sm">
               <a
                 href="https://ai.butexnotebot.com"
