@@ -13,6 +13,10 @@ import dayjs from "dayjs";
 import { ExternalLink, RefreshCcw } from "lucide-react";
 import { formatCompactNumber, PLATFORM_CHART_CONFIG } from "./chart-theme";
 
+const { app, bot, ai } = PLATFORM_CHART_CONFIG;
+const APP_SERIES = { app };
+const SMALL_SERIES = { bot, ai };
+
 /** One row per day, with each platform's interactions as its own series. */
 export type TimelinePoint = {
   date: string;
@@ -61,7 +65,7 @@ export function TimelineChart({
           <Box className="flex flex-col gap-0.5">
             <span className="text-base font-semibold">Interactions</span>
             <span className="text-xs font-normal text-muted-foreground">
-              App (left axis) vs Bot & AI (right axis), daily
+              Daily interactions. App on top; Bot and AI below on their own scale
             </span>
           </Box>
 
@@ -99,68 +103,87 @@ export function TimelineChart({
           </Box>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <EvilBarChart
-          config={PLATFORM_CHART_CONFIG}
-          data={filteredChartData}
-          xDataKey="date"
-          barRadius={6}
-          barGap={2}
-          barCategoryGap={timeRange === "7days" ? 24 : 8}
-          animationType="left-to-right"
-          className="aspect-auto h-[320px] md:h-[400px]"
-          chartProps={{ margin: { top: 12, right: 8, left: 0, bottom: 0 } }}
-        >
-          <EvilBarChart.Grid />
-          <EvilBarChart.XAxis
-            dataKey="date"
-            tick={{ fontSize: 11 }}
-            tickFormatter={(date: string) => dayjs(date).format("D MMM")}
-          />
-          {/* App keeps the default axis (id 0) so the grid and tooltip cursor
-              still have an axis to anchor to. */}
-          <EvilBarChart.YAxis
-            tick={{ fontSize: 11, fill: "var(--chart-label-app)" }}
-            tickFormatter={formatCompactNumber}
-          />
-          {/* Bot runs two orders of magnitude below App, so on a shared axis its
-              bars collapse into a sliver. Its own right-hand axis makes the daily
-              shape readable; the axis ticks and value labels are tinted to match
-              each series so the two scales can't be confused. */}
-          <EvilBarChart.YAxis
-            yAxisId="bot"
-            orientation="right"
-            tick={{ fontSize: 11, fill: "var(--chart-label-bot)" }}
-            tickFormatter={formatCompactNumber}
-          />
-          <EvilBarChart.Tooltip variant="frosted-glass" roundness="lg" />
-          <EvilBarChart.Legend variant="rounded-square" align="right" />
-          <EvilBarChart.Bar
-            dataKey="app"
-            variant="gradient"
-            glowing
-            barProps={{ label: showValueLabels ? appValueLabel : undefined }}
-          />
-          <EvilBarChart.Bar
-            dataKey="bot"
-            variant="gradient"
-            glowing
-            barProps={{
-              yAxisId: "bot",
-              label: showValueLabels ? botValueLabel : undefined,
-            }}
-          />
-          {/* AI (MCP) traffic sits on the same small-scale axis as Bot. */}
-          <EvilBarChart.Bar
-            dataKey="ai"
-            variant="gradient"
-            glowing
-            barProps={{
-              yAxisId: "bot",
-              label: showValueLabels ? aiValueLabel : undefined,
-            }}
-          />
-        </EvilBarChart>
+      <CardContent className="space-y-4">
+        {/* Two panels on the same dates instead of one chart with two y-axes:
+            with App on a 0-10K axis and Bot on a 0-800 axis side by side, a
+            519 Bot bar stood taller than a 5.1K App bar. Each panel now has
+            one scale, so bar heights only ever compare like with like. */}
+        <Box>
+          <Box className="mb-1 text-xs font-medium text-muted-foreground">
+            App
+          </Box>
+          <EvilBarChart
+            config={APP_SERIES}
+            data={filteredChartData}
+            xDataKey="date"
+            barRadius={6}
+            barCategoryGap={timeRange === "7days" ? 32 : 8}
+            animationType="left-to-right"
+            className="aspect-auto h-[200px] md:h-[230px]"
+            chartProps={{ margin: { top: 16, right: 8, left: 0, bottom: 0 } }}
+          >
+            <EvilBarChart.Grid />
+            <EvilBarChart.XAxis
+              dataKey="date"
+              tick={{ fontSize: 11 }}
+              tickFormatter={(date: string) => dayjs(date).format("D MMM")}
+            />
+            <EvilBarChart.YAxis
+              tick={{ fontSize: 11 }}
+              tickFormatter={formatCompactNumber}
+            />
+            <EvilBarChart.Tooltip variant="frosted-glass" roundness="lg" />
+            <EvilBarChart.Bar
+              dataKey="app"
+              variant="gradient"
+              glowing
+              barProps={{ label: showValueLabels ? appValueLabel : undefined }}
+            />
+          </EvilBarChart>
+        </Box>
+
+        <Box>
+          <Box className="mb-1 text-xs font-medium text-muted-foreground">
+            Bot &amp; AI (smaller scale)
+          </Box>
+          <EvilBarChart
+            config={SMALL_SERIES}
+            data={filteredChartData}
+            xDataKey="date"
+            barRadius={6}
+            barGap={2}
+            barCategoryGap={timeRange === "7days" ? 24 : 8}
+            animationType="left-to-right"
+            className="aspect-auto h-[170px] md:h-[200px]"
+            chartProps={{ margin: { top: 16, right: 8, left: 0, bottom: 0 } }}
+          >
+            <EvilBarChart.Grid />
+            <EvilBarChart.XAxis
+              dataKey="date"
+              tick={{ fontSize: 11 }}
+              tickFormatter={(date: string) => dayjs(date).format("D MMM")}
+            />
+            <EvilBarChart.YAxis
+              allowDecimals={false}
+              tick={{ fontSize: 11 }}
+              tickFormatter={formatCompactNumber}
+            />
+            <EvilBarChart.Tooltip variant="frosted-glass" roundness="lg" />
+            <EvilBarChart.Legend variant="rounded-square" align="right" />
+            <EvilBarChart.Bar
+              dataKey="bot"
+              variant="gradient"
+              glowing
+              barProps={{ label: showValueLabels ? botValueLabel : undefined }}
+            />
+            <EvilBarChart.Bar
+              dataKey="ai"
+              variant="gradient"
+              glowing
+              barProps={{ label: showValueLabels ? aiValueLabel : undefined }}
+            />
+          </EvilBarChart>
+        </Box>
       </CardContent>
     </Card>
   );
